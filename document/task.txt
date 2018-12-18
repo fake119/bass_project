@@ -1,0 +1,45 @@
+## BasS Server
+user_management		
+client_management	
+auth_management		
+api_management		
+
+## Service Provider
+client 1	Transaction List
+client 2	게임머니 조회
+
+
+SELECT id, text, complete FROM items
+
+CREATE TABLE client (
+	id SERIAL PRIMARY KEY, 
+	name  VARCHAR(100) not null, 
+	client_id VARCHAR(100) not null, 
+	client_secret VARCHAR(100) not null, 
+	redirect_uri VARCHAR(255) not null, 
+	scope  VARCHAR(100) not null, 
+	details  VARCHAR(255) not null, 
+	created_by  VARCHAR(100) not null, 
+	created_date  timestamp with time zone not null, 
+	is_active BOOLEAN
+)
+
+redirect_uri : http://localhost:3000/auth/callback
+scope : Create+Read+Delete
+created_date : 2018-11-15 14:42:37.629519+09
+
+CREATE TABLE users (
+	id SERIAL PRIMARY KEY, 
+	name  VARCHAR(100) not null, 
+	username VARCHAR(100) not null, 
+	password VARCHAR(100) not null, 
+	authorization_code  VARCHAR(100) null, 
+	token_type  VARCHAR(100) null, 
+	access_token  VARCHAR(255) null, 
+	refresh_token  VARCHAR(100) null, 
+	expires_in  integer, 
+	is_active BOOLEAN
+)
+
+if a "state" parameter was present in the client authorization request.  The exact value received from the client.
+

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+	 crossorigin="anonymous">
+
+	<title>
+		<%= title %>
+	</title>
+	<!-- <link rel='stylesheet' href='/stylesheets/style.css' /> -->
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+		$(()=>{
+			var response_type = "code";
+			var client_id = "066c35d0-e89b-11e8-ae3e-0705eab6c106";
+			var redirect_uri = encodeURIComponent("http://localhost:2001/auth/callback");
+			var state = "xyz";
+			$("#btnAccessToken").click(function(e) {
+				console.log(e);
+				var url = "http://localhost:3000/auth/authorize?response_type=" + response_type + "&client_id=" + client_id + "&redirect_uri=" + redirect_uri + "&state=" + state;
+				console.log('url', url);
+				location.href = url;
+			});
+		});
+	</script>
+</head>
+
+<body>
+	<h1>
+		<%= title %>
+	</h1>
+	<p>Welcome to
+		<%= title %>
+	</p>
+	<br>
+	<p>client_id : 066c35d0-e89b-11e8-ae3e-0705eab6c106</p>
+	<p>client_secret : 24b8252f-7dc0-3bd5-9d80-2bf8b730cdae</p>
+	<p>redirect_uri : http://localhost:2001/auth/callback</p>
+	<button type="button" class="btn btn-success" name="btnAccessToken" id="btnAccessToken">get an access token</button>
+</body>
+
+</html>

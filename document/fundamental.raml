@@ -1,0 +1,192 @@
+#%RAML 1.0
+#
+# This file is part of RPooli.
+#
+# RPooli is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# RPooli is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with RPooli.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+---
+title: RPooli
+baseUri: ${baseUri}/api/{version}
+version: v1
+mediaType: application/json
+
+schemas:
+ - error.json:     !include schema/error.json
+ - pool.json:      !include schema/pool.json
+ - node.json:      !include schema/node.json
+ - nodes.json:     !include schema/nodes.json
+ - conf-r.json:    !include schema/conf-r.json
+ - conf-pool.json: !include schema/conf-pool.json
+ - conf-net.json: !include schema/conf-net.json
+ - conf-net-resolved.json: !include schema/conf-net-resolved.json
+
+/pool:
+  description: Manage the pool of RServi nodes. 22
+  get:
+    description: Retrieve information about the pool.
+    responses:
+      200:
+        body:
+          schema: pool.json
+
+/nodes:
+  description: Manage the RServi nodes.
+  get:
+    description: Retrieve the list of nodes.
+    responses:
+      200:
+        body:
+          schema: nodes.json
+  /{nodeId}:
+    description: Manage a single RServi node.
+    uriParameters:
+      nodeId:
+        type: string
+        required: true
+    get:
+      description: Retrieve a single node.
+      responses:
+        200:
+          body:
+            schema: node.json
+        404:
+          description: The node ID doesn't exist.
+          body:
+            schema: error.json
+    delete:
+      description: Evict a node
+      queryParameters:
+        kill:
+          description: If true, the node is immediately evicted. 
+          type: boolean
+          required: false
+          default: false
+      responses:
+        204:
+          description: The node has been evicted.
+    /console:
+      description: Control the debug console.
+      post:
+        description: Enable the debug console.
+        responses:
+          204:
+            description: The debug console is active.
+      delete:
+        description: The debug console is inactive.
+        responses:
+          204:
+            description: The command has been successfully executed.
+  /test:
+    description: Simulate client actions.
+    post:
+      description: Acquire a node from the pool.
+      responses:
+        204:
+          description: A node has been acquired.
+    delete:
+      description: Release all the acquired nodes to the pool.
+      responses:
+        204:
+          description: All acquired nodes have been released.
+
+/config:
+  description: Configure RPooli.
+  /r:
+    description: R/Rj nodes configuration.
+    get:
+      description: Retrieve the current configuration.
+      responses:
+        200:
+          body:
+            schema: conf-r.json
+    put:
+      description: Configure the parameters to start R.
+      queryParameters:
+        save:
+          description: If true, the configuration will be applied and saved, otherwise it will only be applied.
+          type: boolean
+          required: false
+          default: false
+      body:
+        schema: conf-r.json
+      responses:
+        204:
+          description: The configuration has been accepted.
+    /default:
+      description: The default configuration.
+      get:
+        description: Get the default configuration.
+        responses:
+          200:
+            body:
+              schema: conf-r.json
+  /pool:
+    description: Dynamic pool configuration.
+    get:
+      description: Retrieve the current configuration.
+      responses:
+        200:
+          body:
+            schema: conf-pool.json
+    put:
+      description: Configure the dynamic pool.
+      queryParameters:
+        save:
+          description: If true, the configuration will be applied and saved, otherwise it will only be applied.
+          type: boolean
+          required: false
+          default: false
+      body:
+        schema: conf-pool.json
+      responses:
+        204:
+          description: The configuration has been accepted.
+    /default:
+      description: The default configuration.
+      get:
+        description: Get the default configuration.
+        responses:
+          200:
+            body:
+              schema: conf-pool.json
+  /net:
+    description: RMI configuration.
+    get:
+      description: Retrieve the current configuration.
+      responses:
+        200:
+          body:
+            schema: conf-net-resolved.json
+    put:
+      description: Configure RMI parameters.
+      queryParameters:
+        save:
+          description: If true, the configuration will be applied and saved, otherwise it will only be applied.
+          type: boolean
+          required: false
+          default: false
+      body:
+        schema: conf-net.json
+      responses:
+        204:
+          description: The configuration has been accepted.
+    /default:
+      description: The default configuration.
+      get:
+        description: Get the default configuration.
+        responses:
+          200:
+            body:
+              schema: conf-net-resolved.json

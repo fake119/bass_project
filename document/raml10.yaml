@@ -1,0 +1,436 @@
+#%RAML 1.0
+title: "Contacts API"
+description: "An API for keeping track of your contacts and the companies they work\
+  \ for. \n\nDon't forget to take it for a spin by clicking on the **Try in Client**\
+  \ button next to each operation! All read operations are public and don't require\
+  \ authentication.\n\n<div>\n<img src='https://thecontactsapi.apispark.net/v1/img/cropped-contact-img.png'\
+  \ width='90%'>\n<div>\n\n<!-- ![](https://thecontactsapi.apispark.net/v1/img/cropped-contact-img.png)\
+  \ -->\n\n"
+version: "1.2.0"
+protocols:
+- "HTTPS"
+baseUri: "https://thecontactsapi.restlet.net/v1"
+mediaType:
+- "application/json"
+types:
+  Error:
+    type: "object"
+    description: "This general error structure is used throughout this API."
+    properties:
+      code:
+        type: "integer"
+        minimum: 400
+        maximum: 599
+      description:
+        type: "string"
+        required: false
+        examples:
+          example: "Bad query parameter [$size]: Invalid integer value [abc]"
+          example1: "The server understood the request, but is refusing to fulfill\
+            \ it"
+      reasonPhrase:
+        type: "string"
+        required: false
+        examples:
+          example: "Bad Request"
+          example1: "Forbidden"
+    example:
+      value: "{\n  \"code\": 400,\n  \"description\": \"Bad query parameter [$size]:\
+        \ Invalid integer value [abc]\",\n  \"reasonPhrase\": \"Bad Request\"\n}"
+      strict: false
+  Contact:
+    type: "object"
+    description: "A representation of a Contact."
+    properties:
+      id:
+        type: "string"
+        description: "Auto-generated primary key field"
+        example: "0e8ffb10-ad98-11e6-bf2e-47644ada7c0f"
+      firstName:
+        type: "string"
+        example: "Kurt"
+      lastName:
+        type: "string"
+        example: "Williams"
+      birthday:
+        type: "integer"
+        format: "int64"
+        description: "Birthday as unix timestamp (in ms)"
+        required: false
+        examples:
+          example: 173664000000
+          example1: 383270400000
+      active:
+        type: "boolean"
+        default: true
+        required: false
+      rank:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        required: false
+        examples:
+          example: 1
+          example1: 2
+          example2: 3
+      company:
+        type: "string"
+        description: "This property is a reference to a Company"
+        required: false
+        example: "0e8c9fb0-ad98-11e6-bf2e-47644ada7c0f"
+    example:
+      value: "{\n  \"id\": \"0e8dd830-ad98-11e6-bf2e-47644ada7c0f\",\n  \"firstName\"\
+        : \"John\",\n  \"lastName\": \"Smith\",\n  \"birthday\": 152755200000,\n \
+        \ \"active\": true,\n  \"rank\": 1,\n  \"company\": \"0e8cedd0-ad98-11e6-bf2e-47644ada7c0f\"\
+        \n}"
+      strict: false
+  Company:
+    type: "object"
+    description: "A representation of a Company."
+    properties:
+      id:
+        type: "string"
+        description: "Auto-generated primary key field"
+      name:
+        type: "string"
+      tags:
+        type: "array"
+        required: false
+        items:
+          type: "string"
+          pattern: "[a-zA-Z]+"
+        example:
+          value: "[\"brewery\", \"beer\", \"ale\"]"
+          strict: false
+      address:
+        type: "object"
+        properties:
+          street:
+            type: "string"
+          city:
+            type: "string"
+          zipcode:
+            type: "string"
+            pattern: "[0-9]*"
+    example:
+      value: "{\n  \"id\": \"0e8cedd0-ad98-11e6-bf2e-47644ada7c0f\",\n  \"name\":\
+        \ \"George Street Brewery\",\n  \"address\":{\n    \"street\": \"2 place de\
+        \ la Defense\",\n    \"zipcode\": \"92053\",\n    \"city\": \"Paris\"\n  },\n\
+        \  \"tags\":[\n    \"brewery\",\n    \"beer\",\n    \"ale\"\n  ]\n}"
+      strict: false
+securitySchemes:
+  HTTP_BASIC:
+    type: "Basic Authentication"
+    description: "All GET methods are public, meaning that *you can read all the data*.\
+      \ Write operations require authentication and therefore are forbidden to the\
+      \ general public."
+/contacts/:
+  get:
+    displayName: "Get the list of Contacts"
+    description: "Loads a list of Contact"
+    queryParameters:
+      $size:
+        type: "integer"
+        description: "Size of the page to retrieve."
+        required: false
+        example: 10
+      $page:
+        type: "integer"
+        description: "Number of the page to retrieve."
+        required: false
+        examples:
+          example: 1
+          example1: 42
+      $sort:
+        type: "string"
+        description: "Order in which to retrieve the results. Multiple sort criteria\
+          \ can be passed."
+        required: false
+        examples:
+          example: "birthday DESC"
+          example1: "birthday ASC,rank DESC"
+      firstName:
+        type: "string"
+        description: "Allows to filter the collections of result by the value of field\
+          \ firstName"
+        required: false
+        example: "John"
+      lastName:
+        type: "string"
+        description: "Allows to filter the collections of result by the value of field\
+          \ lastName"
+        required: false
+        example: "Doe"
+      active:
+        type: "boolean"
+        description: "Allows to filter the collections of result by the value of field\
+          \ active"
+        required: false
+        examples:
+          example: true
+          example1: false
+      company:
+        type: "string"
+        description: "Allows to filter the collections of result by the value of field\
+          \ company"
+        required: false
+        example: "0e8c9fb0-ad98-11e6-bf2e-47644ada7c0f"
+    responses:
+      200:
+        description: "Status 200"
+        headers:
+          X-Page-Count:
+            type: "integer"
+            required: false
+            example: 1
+          X-Page-Number:
+            type: "integer"
+            required: false
+            example: 1
+          X-Page-Size:
+            type: "integer"
+            required: false
+            example: 25
+          X-Total-Count:
+            type: "integer"
+            required: false
+            example: 2
+        body:
+          type: "array"
+          items:
+            type: "Contact"
+          example:
+            value: "[{\n  \"id\": \"0e8dd830-ad98-11e6-bf2e-47644ada7c0f\",\n  \"\
+              firstName\": \"John\",\n  \"lastName\": \"Smith\",\n  \"birthday\":\
+              \ 152755200000,\n  \"active\": true,\n  \"rank\": 1,\n  \"company\"\
+              : \"0e8cedd0-ad98-11e6-bf2e-47644ada7c0f\"\n}]"
+            strict: false
+      400:
+        description: "Status 400"
+        body:
+          type: "Error"
+  post:
+    displayName: "Create a Contact"
+    description: "Adds a Contact"
+    body:
+      type: "Contact"
+      example:
+        value: "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Smith\",\n  \"birthday\"\
+          : 152755200000,\n  \"active\": true,\n  \"rank\": 1,\n  \"company\": \"\
+          0e8cedd0-ad98-11e6-bf2e-47644ada7c0f\"\n}"
+        strict: false
+    responses:
+      200:
+        description: "Status 200"
+        body:
+          type: "Contact"
+          example:
+            value: "{\n  \"id\": \"0e8dd830-ad98-11e6-bf2e-47644ada7c0f\",\n  \"firstName\"\
+              : \"John\",\n  \"lastName\": \"Smith\",\n  \"birthday\": 152755200000,\n\
+              \  \"active\": true,\n  \"rank\": 1,\n  \"company\": \"0e8cedd0-ad98-11e6-bf2e-47644ada7c0f\"\
+              \n}"
+            strict: false
+    securedBy:
+    - "HTTP_BASIC"
+/contacts/{contactid}:
+  uriParameters:
+    contactid:
+      type: "string"
+      description: "Identifier of the Contact"
+      required: false
+      example: "0e8dd830-ad98-11e6-bf2e-47644ada7c0f"
+  get:
+    displayName: "Load an individual Contact"
+    description: "Loads a Contact"
+    responses:
+      200:
+        description: "Status 200"
+        body:
+          type: "Contact"
+          example:
+            value: "{\n  \"id\": \"0e8dd830-ad98-11e6-bf2e-47644ada7c0f\",\n  \"firstName\"\
+              : \"John\",\n  \"lastName\": \"Smith\",\n  \"birthday\": 152755200000,\n\
+              \  \"active\": true,\n  \"rank\": 1,\n  \"company\": \"0e8cedd0-ad98-11e6-bf2e-47644ada7c0f\"\
+              \n}"
+            strict: false
+      400:
+        description: "Status 400"
+        body:
+          type: "Error"
+  put:
+    displayName: "Update a Contact"
+    description: "Stores a Contact"
+    body:
+      type: "Contact"
+      example:
+        value: "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Smith\",\n  \"birthday\"\
+          : 152755200000,\n  \"active\": true,\n  \"rank\": 1,\n  \"company\": \"\
+          0e8cedd0-ad98-11e6-bf2e-47644ada7c0f\"\n}"
+        strict: false
+    responses:
+      200:
+        description: "Status 200"
+        body:
+          type: "Contact"
+          example:
+            value: "{\n  \"id\": \"0e8dd830-ad98-11e6-bf2e-47644ada7c0f\",\n  \"firstName\"\
+              : \"John\",\n  \"lastName\": \"Smith\",\n  \"birthday\": 152755200000,\n\
+              \  \"active\": true,\n  \"rank\": 1,\n  \"company\": \"0e8cedd0-ad98-11e6-bf2e-47644ada7c0f\"\
+              \n}"
+            strict: false
+    securedBy:
+    - "HTTP_BASIC"
+  delete:
+    displayName: "Delete a Contact"
+    description: "Deletes a Contact"
+    responses:
+      200:
+        description: "Status 200"
+    securedBy:
+    - "HTTP_BASIC"
+/companies/:
+  get:
+    displayName: "Load the list of Companies"
+    description: "Loads a list of Company"
+    queryParameters:
+      $size:
+        type: "integer"
+        description: "Size of the page to retrieve."
+        required: false
+        example: 10
+      $page:
+        type: "number"
+        description: "Number of the page to retrieve."
+        required: false
+        example: 1
+      $sort:
+        type: "string"
+        description: "Order in which to retrieve the results. Multiple sort criteria\
+          \ can be passed. Example: sort=age ASC,height DESC"
+        required: false
+        example: "name ASC"
+      name:
+        type: "string"
+        description: "Allows to filter the collections of result by the value of field\
+          \ name"
+        required: false
+        example: "George Street Brewery"
+    responses:
+      200:
+        description: "Status 200"
+        headers:
+          X-Page-Count:
+            type: "integer"
+            required: false
+            example: 1
+          X-Page-Number:
+            type: "integer"
+            required: false
+            example: 1
+          X-Page-Size:
+            type: "integer"
+            required: false
+            example: 25
+          X-Total-Count:
+            type: "integer"
+            required: false
+            example: 2
+        body:
+          type: "array"
+          items:
+            type: "Company"
+          example:
+            value: "[{\n  \"id\": \"0e8cedd0-ad98-11e6-bf2e-47644ada7c0f\",\n  \"\
+              name\": \"George Street Brewery\",\n  \"address\":{\n    \"street\"\
+              : \"2 place de la Defense\",\n    \"zipcode\": \"92053\",\n    \"city\"\
+              : \"Paris\"\n  },\n  \"tags\":[\n    \"brewery\",\n    \"beer\",\n \
+              \   \"ale\"\n  ]\n}]"
+            strict: false
+      400:
+        description: "Status 400"
+        body:
+          type: "Error"
+  post:
+    displayName: "Create a new Company"
+    description: "Adds a Company"
+    body:
+      type: "Company"
+      example:
+        value: "{\n  \"name\": \"George Street Brewery\",\n  \"address\":{\n    \"\
+          street\": \"2 place de la Defense\",\n    \"zipcode\": \"92053\",\n    \"\
+          city\": \"Paris\"\n  },\n  \"tags\":[\n    \"brewery\",\n    \"beer\",\n\
+          \    \"ale\"\n  ]\n}"
+        strict: false
+    responses:
+      200:
+        description: "Status 200"
+        body:
+          type: "Company"
+          example:
+            value: "{\n  \"id\": \"0e8cedd0-ad98-11e6-bf2e-47644ada7c0f\",\n  \"name\"\
+              : \"George Street Brewery\",\n  \"address\":{\n    \"street\": \"2 place\
+              \ de la Defense\",\n    \"zipcode\": \"92053\",\n    \"city\": \"Paris\"\
+              \n  },\n  \"tags\":[\n    \"brewery\",\n    \"beer\",\n    \"ale\"\n\
+              \  ]\n}"
+            strict: false
+    securedBy:
+    - "HTTP_BASIC"
+/companies/{companyid}:
+  uriParameters:
+    companyid:
+      type: "string"
+      description: "Identifier of the Company"
+      required: false
+      example: "0e8c9fb0-ad98-11e6-bf2e-47644ada7c0f"
+  get:
+    displayName: "Load an individual Company"
+    description: "Loads a Company"
+    responses:
+      200:
+        description: "Status 200"
+        body:
+          type: "Company"
+          example:
+            value: "{\n  \"id\": \"0e8cedd0-ad98-11e6-bf2e-47644ada7c0f\",\n  \"name\"\
+              : \"George Street Brewery\",\n  \"address\":{\n    \"street\": \"2 place\
+              \ de la Defense\",\n    \"zipcode\": \"92053\",\n    \"city\": \"Paris\"\
+              \n  },\n  \"tags\":[\n    \"brewery\",\n    \"beer\",\n    \"ale\"\n\
+              \  ]\n}"
+            strict: false
+      400:
+        description: "Status 400"
+        body:
+          type: "Error"
+  put:
+    displayName: "Update a Company"
+    description: "Stores a Company"
+    body:
+      type: "Company"
+      example:
+        value: "{\n  \"name\": \"George Street Brewery\",\n  \"address\":{\n    \"\
+          street\": \"2 place de la Defense\",\n    \"zipcode\": \"92053\",\n    \"\
+          city\": \"Paris\"\n  },\n  \"tags\":[\n    \"brewery\",\n    \"beer\",\n\
+          \    \"ale\"\n  ]\n}"
+        strict: false
+    responses:
+      200:
+        description: "Status 200"
+        body:
+          type: "Company"
+          example:
+            value: "{\n  \"id\": \"0e8cedd0-ad98-11e6-bf2e-47644ada7c0f\",\n  \"name\"\
+              : \"George Street Brewery\",\n  \"address\":{\n    \"street\": \"2 place\
+              \ de la Defense\",\n    \"zipcode\": \"92053\",\n    \"city\": \"Paris\"\
+              \n  },\n  \"tags\":[\n    \"brewery\",\n    \"beer\",\n    \"ale\"\n\
+              \  ]\n}"
+            strict: false
+    securedBy:
+    - "HTTP_BASIC"
+  delete:
+    displayName: "Delete a Company"
+    description: "Deletes a Company"
+    responses:
+      200:
+        description: "Status 200"
+    securedBy:
+    - "HTTP_BASIC"
