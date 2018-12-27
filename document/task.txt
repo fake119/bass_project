@@ -1,8 +1,7 @@
-## BasS Server
-user_management		
-client_management	
+## BasS Server	
 auth_management		
-api_management		
+client_1
+client_2
 
 ## Service Provider
 client 1	Transaction List
@@ -41,5 +40,4 @@ CREATE TABLE users (
 	is_active BOOLEAN
 )
 
-if a "state" parameter was present in the client authorization request.  The exact value received from the client.
 
